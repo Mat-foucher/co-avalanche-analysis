@@ -1,0 +1,7 @@
+streamlit
+folium
+pandas
+geopandas
+shapely
+openpyxl
+streamlit_folium

@@ -101,6 +101,8 @@ polygons = []
 
 for cluster in df_filtered["cluster"].unique():
     cluster_points = gdf[gdf["cluster"] == cluster]
+    # Which traveler is the most frequent in this polygon:
+    dominant_traveler = cluster_points["PrimaryActivity"].mode()[0]
 
     if len(cluster_points) >=3: # At least 3 points are needed to form a polygon.
         if len(cluster_points) >= 3:  # Only make polygons if there are enough points
@@ -108,8 +110,7 @@ for cluster in df_filtered["cluster"].unique():
         if hull.geom_type == "Polygon":  # Ensure it's a polygon, not a line
             polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
 
-        # Which traveler is the most frequent in this polygon:
-        dominant_traveler = cluster_points["PrimaryActivity"].mode()[0]
+        
 
         # Store polygon and its dominant traveler type:
         polygons.append({"polygon": hull, "traveler_type": dominant_traveler})

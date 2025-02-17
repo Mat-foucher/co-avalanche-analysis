@@ -66,8 +66,11 @@ m = folium.Map(location=[39.5,-105.5],zoom_start=7)
 
 # Streamlit:
 
+# Convert year to integer in case it is a string:
+df["YYYY"] = df["YYYY"].astype(int)
+
 ## Dropdown to select the year:
-selected_year = st.selectbox("Select a Year", df["YYYY"].unique())
+selected_year = st.sidebar.selectbox("Select a Year", sorted(df["YYYY"].unique()), index=0)
 
 ## Filter the data based on selected year:
 df_filtered = df[df["YYYY"] == selected_year]

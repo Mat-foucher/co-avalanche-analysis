@@ -89,7 +89,7 @@ for _, row in df_filtered.iterrows():
 
 # Heatmap Stuff:
 
-heat_data = df_filtered[['lat','lon']].dropna().values.tolist()
+heat_data = df[['lat','lon']].dropna().values.tolist()
 
 HeatMap(heat_data).add_to(m)
 

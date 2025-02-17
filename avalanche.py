@@ -91,7 +91,7 @@ df_filtered["cluster"] = clustering.labels_
 df_filtered = df_filtered[df_filtered["cluster"] != 1]
 
 # Convert to GeoDataFrame
-gdf = gpd.GeoDataFrame(df_filtered, geometry=gpd.points_from_xy(df_filtered.lon, df_filtered.lat)
+gdf = gpd.GeoDataFrame(df_filtered, geometry=gpd.points_from_xy(df_filtered.lon, df_filtered.lat))
 
 # Create a dict to store polygons and dominant traveler type:
 polygons = []

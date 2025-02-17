@@ -3,8 +3,8 @@ folium
 pandas
 geopandas
 shapely
+scipy
+scikit-learn
 openpyxl
 streamlit_folium
-Multipoint
-Polygon
-Point
+six

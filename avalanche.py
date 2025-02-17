@@ -1,18 +1,25 @@
 import pandas as pd
 import streamlit as st
 import folium
-from streamlit_folium import folium_static
+from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 from folium.plugins import  HeatMap
 import geopandas as gpd
 from shapely.geometry import MultiPoint, Polygon, Point
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
 import numpy as np
 
 file_path = "CAIC_Accident_Data_Nov_2024.xlsx"
 df = pd.read_excel(file_path)
 
-df.dropna(subset=['lat','lon'])
+df = df[(df["lat"] != 0.0) & (df["lon"] != 0.0)]
+print(df[['lat', 'lon']].describe())
+
+
+df["lat"] = pd.to_numeric(df["lat"], errors="coerce")
+df["lon"] = pd.to_numeric(df["lon"], errors="coerce")
+
 
 df['PrimaryActivity'] = df['PrimaryActivity'].str.lower().str.replace(" ","_")
 
@@ -83,42 +90,50 @@ df_filtered = df[df["YYYY"] == selected_year]
 coords = df_filtered[['lat', 'lon']].values
 
 # Convert miles to radians:
-eps_distance = 5 /3958.8
+eps_distance = 100 /3958.8
 
-# Apply DBSCAN clustering
-clustering = DBSCAN(eps=eps_distance, min_samples=2,metric='haversine').fit(np.radians(coords))
+# # Apply DBSCAN clustering
+# clustering = DBSCAN(eps=eps_distance, min_samples=1,metric='haversine').fit(np.radians(coords))
 
-df_filtered["cluster"] = clustering.labels_
+num_clusters = min(5, len(df_filtered))  # Prevents more clusters than points
 
-# Remove noise points:
-df_filtered = df_filtered[df_filtered["cluster"] != 1]
+if num_clusters > 1:  # Only run K-Means if we have more than 1 point
+    kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init="auto")
+    df_filtered.loc[:, "cluster"] = kmeans.fit_predict(coords)
+else:
+    df_filtered["cluster"] = np.zeros(len(df_filtered), dtype=int)  # Assign every point to one cluster if too few data points exist
+
+# Ensure "cluster" column exists before filtering
+if "cluster" not in df_filtered.columns:
+    df_filtered["cluster"] = 0  # Assign all points to one cluster to prevent errors
+
+# Now it's safe to filter
+df_filtered = df_filtered[df_filtered["cluster"] != -1]
+
 
 # Convert to GeoDataFrame
 gdf = gpd.GeoDataFrame(df_filtered, geometry=gpd.points_from_xy(df_filtered.lon, df_filtered.lat))
 
 # Create a dict to store polygons and dominant traveler type:
 polygons = []
-
 for cluster in df_filtered["cluster"].unique():
     cluster_points = gdf[gdf["cluster"] == cluster]
-    # Which traveler is the most frequent in this polygon:
-    dominant_traveler = cluster_points["PrimaryActivity"].mode()[0]
 
-    if len(cluster_points) >=3: # At least 3 points are needed to form a polygon.
-        if len(cluster_points) >= 3:  # Only make polygons if there are enough points
-            hull = MultiPoint([point for point in cluster_points.geometry]).convex_hull
-        if hull.geom_type == "Polygon":
-            polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
-        elif hull.geom_type == "LineString":  
-            # If it's a line, buffer it slightly to create a small polygon
-            polygons.append({"polygon": hull.buffer(0.001), "traveler_type": dominant_traveler})
-        elif hull.geom_type == "Point":
-            # If it's a point, make a tiny circular buffer
-            polygons.append({"polygon": hull.buffer(0.002), "traveler_type": dominant_traveler})
+    if len(cluster_points) < 3:
+        continue  # Skip clusters with too few points
+
+    hull = MultiPoint(cluster_points.geometry.tolist()).convex_hull
+
+    if hull.geom_type == "Polygon":
+        polygons.append({"polygon": hull, "traveler_type": cluster_points["PrimaryActivity"].mode()[0]})
+
+    elif hull.geom_type == "LineString":  
+        polygons.append({"polygon": hull.buffer(0.001), "traveler_type": cluster_points["PrimaryActivity"].mode()[0]})
+
+    elif hull.geom_type == "Point":
+        polygons.append({"polygon": hull.buffer(0.002), "traveler_type": cluster_points["PrimaryActivity"].mode()[0]})
+
         
-
-        # Store polygon and its dominant traveler type:
-        polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
 
 # The Map Making Section:
 m = folium.Map(location=[39.5,-105.5],zoom_start=7)
@@ -155,7 +170,7 @@ for _, row in df_filtered.iterrows():
 # HeatMap(heat_data).add_to(m)
 
 # Save the Map:
-folium_static(m)
+st_folium(m)
 
 st.markdown("""
 ### Forecast Zone Risk Legend:
@@ -167,4 +182,5 @@ st.markdown("""
 """)
 
 
-#print(df_filtered["cluster"].value_counts())
+print(df_filtered[['lat', 'lon']].dropna())  # Show all non-null lat/lon values
+

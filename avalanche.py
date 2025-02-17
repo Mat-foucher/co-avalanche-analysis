@@ -83,7 +83,7 @@ df_filtered = df[df["YYYY"] == selected_year]
 coords = df_filtered[['lat', 'lon']].values
 
 # Convert miles to radians:
-eps_distance = 10 /3958.8
+eps_distance = 5 /3958.8
 
 # Apply DBSCAN clustering
 clustering = DBSCAN(eps=eps_distance, min_samples=2,metric='haversine').fit(np.radians(coords))
@@ -103,7 +103,10 @@ for cluster in df_filtered["cluster"].unique():
     cluster_points = gdf[gdf["cluster"] == cluster]
 
     if len(cluster_points) >=3: # At least 3 points are needed to form a polygon.
-        hull = MultiPoint(cluster_points.geometry.tolist()).convex_hull # if at least 3 points are present, create polygon.
+        if len(cluster_points) >= 3:  # Only make polygons if there are enough points
+            hull = MultiPoint([point for point in cluster_points.geometry]).convex_hull
+        if hull.geom_type == "Polygon":  # Ensure it's a polygon, not a line
+            polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
 
         # Which traveler is the most frequent in this polygon:
         dominant_traveler = cluster_points["PrimaryActivity"].mode()[0]
@@ -158,4 +161,4 @@ st.markdown("""
 """)
 
 
-
+#print(df_filtered["cluster"].value_counts())

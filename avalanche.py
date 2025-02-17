@@ -2,7 +2,12 @@ import pandas as pd
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
+from folium.plugins import MarkerCluster
 from folium.plugins import  HeatMap
+import geopandas as gpd
+from shapely.geometry import Multipoint, Polygon, Point
+from sklearn.cluster import DBSCAN
+import numpy as np
 
 file_path = "CAIC_Accident_Data_Nov_2024.xlsx"
 df = pd.read_excel(file_path)
@@ -60,8 +65,7 @@ colordict  = {
     "micellaneous": "gray"
 }
 
-# The Map Making Section:
-m = folium.Map(location=[39.5,-105.5],zoom_start=7)
+
 
 
 # Streamlit:
@@ -75,23 +79,68 @@ selected_year = st.sidebar.selectbox("Select a Year", sorted(df["YYYY"].unique()
 ## Filter the data based on selected year:
 df_filtered = df[df["YYYY"] == selected_year]
 
+# Convert lat/lon to numpoy array for clustering:
+eps_distance = 10 /3958.8
+
+# Convert miles to radians:
+clustering = DBSCAN(eps=eps_distance, min_samples=2,metric='haversine').fit(np.radians(coords))
+
+df_filtered["cluster"] = clustering.labels_
+
+# Remove noise points:
+df_filtered = df_filtered[df_filtered["cluster"] != 1]
+
+# Convert to GeoDataFrame
+gdf = gpd.GeoDataFrame(df_filtered, geometry=gpd.points_from_xy(df_filtered.lon, df_filtered.lat)
+
+# Create a dict to store polygons and dominant traveler type:
+polygons = []
+
+for cluster in df_filtered["cluster"].unique():
+    cluster_points = gdf[gdf["cluster"] == cluster]
+
+    if len(cluster_points) >=3: # At least 3 points are needed to form a polygon.
+        hull = MultiPoint(cluster_points.geometry.tolist()).convex_hull # if at least 3 points are present, create polygon.
+
+        # Which traveler is the most frequent in this polygon:
+        dominant_traveler = cluster_points["PrimaryActivity"].mode()[0]
+
+        # Store polygon and its dominant traveler type:
+        polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
+
+# The Map Making Section:
+m = folium.Map(location=[39.5,-105.5],zoom_start=7)
+
+# Plot the polygons:
+for poly in polygons:
+    folium.Polygon(
+        locations=[(point[1], point[0]) for point in list(poly["polygon"].exterior.coords)],
+        color=colordict.get(poly["traveler_type"],"gray"),
+        fill_opacity=0.5,
+        popup=f"Most at risk: {poly['traveler_type']}"
+    ).add_to(m)
+
+# Add individual points to the map as clusters:
+marker_cluster = MarkerCluster().add_to(m)
 
 # Plot the incidents:
 for _, row in df_filtered.iterrows():
-    folium.CircleMarker(
+    folium.Marker(
         location=[row["lat"],row["lon"]],
         radius=5,
         popup=f"Traveler: {row['PrimaryActivity']}<br>Location: {row['Location']}<br>Date: {row['YYYY']}-{row['MM']}-{row['DD']}",
         color=colordict.get(row["PrimaryActivity"],"gray"),
         fill=True,
         fill_color=colordict.get(row["PrimaryActivity"],"gray")
-    ).add_to(m)
+    ).add_to(marker_cluster)
 
-# Heatmap Stuff:
 
-heat_data = df[['lat','lon']].dropna().values.tolist()
 
-HeatMap(heat_data).add_to(m)
+# # Heatmap Stuff:
+
+# heat_data = df[['lat','lon']].dropna().values.tolist()
+
+# HeatMap(heat_data).add_to(m)
 
 # Save the Map:
 folium_static(m)

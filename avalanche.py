@@ -107,9 +107,14 @@ for cluster in df_filtered["cluster"].unique():
     if len(cluster_points) >=3: # At least 3 points are needed to form a polygon.
         if len(cluster_points) >= 3:  # Only make polygons if there are enough points
             hull = MultiPoint([point for point in cluster_points.geometry]).convex_hull
-        if hull.geom_type == "Polygon":  # Ensure it's a polygon, not a line
+        if hull.geom_type == "Polygon":
             polygons.append({"polygon": hull, "traveler_type": dominant_traveler})
-
+        elif hull.geom_type == "LineString":  
+            # If it's a line, buffer it slightly to create a small polygon
+            polygons.append({"polygon": hull.buffer(0.001), "traveler_type": dominant_traveler})
+        elif hull.geom_type == "Point":
+            # If it's a point, make a tiny circular buffer
+            polygons.append({"polygon": hull.buffer(0.002), "traveler_type": dominant_traveler})
         
 
         # Store polygon and its dominant traveler type:

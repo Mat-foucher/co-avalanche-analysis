@@ -3,6 +3,7 @@ folium
 pandas
 geopandas
 shapely
+shapely.geometry
 scipy
 scikit-learn
 openpyxl

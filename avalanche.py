@@ -77,7 +77,7 @@ df_filtered = df[df["YYYY"] == selected_year]
 
 
 # Plot the incidents:
-for _, row in df.iterrows():
+for _, row in df_filtered.iterrows():
     folium.CircleMarker(
         location=[row["lat"],row["lon"]],
         radius=5,
@@ -94,7 +94,6 @@ heat_data = df[['lat','lon']].dropna().values.tolist()
 HeatMap(heat_data).add_to(m)
 
 # Save the Map:
-#m.save("avalanche_traveler_map.html")
 folium_static(m)
 
 st.markdown("""
@@ -106,6 +105,5 @@ st.markdown("""
 - **Gray** = No dominant traveler type
 """)
 
-#print("Map Saved! Now with Heatmap! Open 'avalanche_traveler_map.html in a web browser.")
 
 

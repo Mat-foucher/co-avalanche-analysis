@@ -2,7 +2,11 @@ streamlit
 folium
 pandas
 geopandas
-shapely
+shapely==1.8.5
+geopandas
+fiona
+pyproj
+rtree
 scipy
 scikit-learn
 openpyxl

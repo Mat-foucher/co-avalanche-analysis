@@ -5,7 +5,7 @@ from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster
 from folium.plugins import  HeatMap
 import geopandas as gpd
-from shapely.geometry import Multipoint, Polygon, Point
+from shapely.geometry import MultiPoint, Polygon, Point
 from sklearn.cluster import DBSCAN
 import numpy as np
 

@@ -81,27 +81,28 @@ colordict  = {
 df["YYYY"] = df["YYYY"].astype(int)
 
 ## Dropdown to select the year:
-selected_year = st.sidebar.selectbox("Select a Year", sorted(df["YYYY"].unique()), index=0)
+#selected_year = st.sidebar.selectbox("Select a Year", sorted(df["YYYY"].unique()), index=0)
 
 ## Filter the data based on selected year:
-df_filtered = df[df["YYYY"] == selected_year]
-
+#df_filtered = df[df["YYYY"] == selected_year]
+df_filtered = df
 ## Convert lat/lon to numpy array for clustering:
 coords = df_filtered[['lat', 'lon']].values
 
 # Convert miles to radians:
-eps_distance = 100 /3958.8
+eps_distance = 2/3958.8
 
 # # Apply DBSCAN clustering
 # clustering = DBSCAN(eps=eps_distance, min_samples=1,metric='haversine').fit(np.radians(coords))
 
 num_clusters = min(5, len(df_filtered))  # Prevents more clusters than points
 
-if num_clusters > 1:  # Only run K-Means if we have more than 1 point
-    kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init="auto")
-    df_filtered.loc[:, "cluster"] = kmeans.fit_predict(coords)
+iif num_clusters > 1:  # Only run DBSCAN if we have enough points
+    clustering = DBSCAN(eps=eps_distance, min_samples=4, metric='haversine').fit(np.radians(coords))
+    df_filtered.loc[:, "cluster"] = clustering.labels_  # ✅ This is the correct way to get clusters
 else:
-    df_filtered["cluster"] = np.zeros(len(df_filtered), dtype=int)  # Assign every point to one cluster if too few data points exist
+    df_filtered.loc[:, "cluster"] = np.zeros(len(df_filtered), dtype=int)  # Assign every point to one cluster if too few data points exist
+
 
 # Ensure "cluster" column exists before filtering
 if "cluster" not in df_filtered.columns:

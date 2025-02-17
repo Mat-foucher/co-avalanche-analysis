@@ -97,6 +97,15 @@ HeatMap(heat_data).add_to(m)
 #m.save("avalanche_traveler_map.html")
 folium_static(m)
 
+st.markdown("""
+### Forecast Zone Risk Legend:
+- **Blue** = Most incidents involved skiers
+- **Red** = Most incidents involved mechanized users (snowmobiles)
+- **Green** = Most incidents involved hikers/climbers
+- **Purple** = Most incidents involved occupational workers (patrollers, rescuers)
+- **Gray** = No dominant traveler type
+""")
+
 #print("Map Saved! Now with Heatmap! Open 'avalanche_traveler_map.html in a web browser.")
 
 

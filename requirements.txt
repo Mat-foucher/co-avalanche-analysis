@@ -5,3 +5,6 @@ geopandas
 shapely
 openpyxl
 streamlit_folium
+Multipoint
+Polygon
+Point

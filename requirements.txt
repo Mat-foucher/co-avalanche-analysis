@@ -13,3 +13,4 @@ openpyxl
 streamlit_folium
 six
 shapely==2.0.1
+openpyxl

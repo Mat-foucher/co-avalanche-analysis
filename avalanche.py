@@ -79,10 +79,13 @@ selected_year = st.sidebar.selectbox("Select a Year", sorted(df["YYYY"].unique()
 ## Filter the data based on selected year:
 df_filtered = df[df["YYYY"] == selected_year]
 
-# Convert lat/lon to numpoy array for clustering:
-eps_distance = 10 /3958.8
+## Convert lat/lon to numpy array for clustering:
+coords = df_filtered[['lat', 'lon']].values
 
 # Convert miles to radians:
+eps_distance = 10 /3958.8
+
+# Apply DBSCAN clustering
 clustering = DBSCAN(eps=eps_distance, min_samples=2,metric='haversine').fit(np.radians(coords))
 
 df_filtered["cluster"] = clustering.labels_

@@ -65,12 +65,13 @@ print(df["PrimaryActivity"].unique())
 
 # Color Code for Activity Type:
 colordict  = {
-    "skier": "blue",
-    "mechanized": "red",
-    "hiker": "green",
-    "occupational_hazard": "orange",
-    "micellaneous": "gray"
+    "skier": "rgba(0, 0, 255, 0.5)",  # Blue with 50% opacity
+    "mechanized": "rgba(255, 0, 0, 0.5)",  # Red with 50% opacity
+    "hiker": "rgba(0, 255, 0, 0.5)",  # Green with 50% opacity
+    "occupational_hazard": "rgba(255, 165, 0, 0.5)",  # Orange with 50% opacity
+    "miscellaneous": "rgba(128, 128, 128, 0.5)"  # Gray with 50% opacity
 }
+
 
 
 
@@ -86,19 +87,28 @@ df["YYYY"] = df["YYYY"].astype(int)
 ## Filter the data based on selected year:
 #df_filtered = df[df["YYYY"] == selected_year]
 df_filtered = df
+
+# Sidebar filter for activity types
+traveler_filter = st.sidebar.multiselect(
+    "Filter by Traveler Type", df["PrimaryActivity"].unique(), default=df["PrimaryActivity"].unique()
+)
+
+# Apply the filter
+df_filtered = df_filtered[df_filtered["PrimaryActivity"].isin(traveler_filter)]
+
 ## Convert lat/lon to numpy array for clustering:
 coords = df_filtered[['lat', 'lon']].values
 
 # Convert miles to radians:
-eps_distance = 2/3958.8
+eps_distance = 7/3958.8
 
 # # Apply DBSCAN clustering
 # clustering = DBSCAN(eps=eps_distance, min_samples=1,metric='haversine').fit(np.radians(coords))
 
-num_clusters = min(5, len(df_filtered))  # Prevents more clusters than points
+num_clusters = min(3, len(df_filtered))  # Prevents more clusters than points
 
-iif num_clusters > 1:  # Only run DBSCAN if we have enough points
-    clustering = DBSCAN(eps=eps_distance, min_samples=4, metric='haversine').fit(np.radians(coords))
+if num_clusters > 1:  # Only run DBSCAN if we have enough points
+    clustering = DBSCAN(eps=eps_distance, min_samples=2, metric='haversine').fit(np.radians(coords))
     df_filtered.loc[:, "cluster"] = clustering.labels_  # ✅ This is the correct way to get clusters
 else:
     df_filtered.loc[:, "cluster"] = np.zeros(len(df_filtered), dtype=int)  # Assign every point to one cluster if too few data points exist
@@ -123,7 +133,7 @@ for cluster in df_filtered["cluster"].unique():
     if len(cluster_points) < 3:
         continue  # Skip clusters with too few points
 
-    hull = MultiPoint(cluster_points.geometry.tolist()).convex_hull
+    hull = MultiPoint(cluster_points.geometry.tolist()).convex_hull.buffer(0.05)
 
     if hull.geom_type == "Polygon":
         polygons.append({"polygon": hull, "traveler_type": cluster_points["PrimaryActivity"].mode()[0]})
@@ -143,13 +153,22 @@ m = folium.Map(location=[39.5,-105.5],zoom_start=7)
 for poly in polygons:
     folium.Polygon(
         locations=[(point[1], point[0]) for point in list(poly["polygon"].exterior.coords)],
-        color=colordict.get(poly["traveler_type"],"gray"),
-        fill_opacity=0.5,
-        popup=f"Most at risk: {poly['traveler_type']}"
+        color=colordict.get(poly["traveler_type"], "gray"),  # Keeps the outline color
+        fill=True,  # Enables fill
+        fill_color=colordict.get(poly["traveler_type"], "gray"),  # Uses the same transparent fill color
+        fill_opacity=0.5,  # Adjust transparency (0 = fully transparent, 1 = solid color)
+        weight=2,  # Outline thickness
+        interactive=True,  # ✅ Makes entire polygon clickable
+        popup=folium.Popup(
+            f"<b>Most at risk:</b> {poly['traveler_type']}<br>"
+            f"<b>Incidents:</b> {len(df_filtered[df_filtered['cluster'] == cluster])}",
+            max_width=300
+        )
     ).add_to(m)
 
+
 # Add individual points to the map as clusters:
-marker_cluster = MarkerCluster().add_to(m)
+marker_cluster = MarkerCluster(disableClusteringAtZoom=10).add_to(m)
 
 # Plot the incidents:
 for _, row in df_filtered.iterrows():
@@ -164,11 +183,18 @@ for _, row in df_filtered.iterrows():
 
 
 
-# # Heatmap Stuff:
+# Heatmap Stuff:
 
-# heat_data = df[['lat','lon']].dropna().values.tolist()
+# Weight heatmap points based on accident density
+heat_data = df_filtered[['lat', 'lon']].dropna()
+heat_data = heat_data.groupby(["lat", "lon"]).size().reset_index(name="count")
 
-# HeatMap(heat_data).add_to(m)
+# Apply weighting to the heatmap intensity
+heatmap_data = heat_data[['lat', 'lon', 'count']].values.tolist()
+
+# Add weighted heatmap
+HeatMap(heatmap_data, radius=10, blur=15, max_zoom=8).add_to(m)
+
 
 # Save the Map:
 st_folium(m)
@@ -180,6 +206,15 @@ st.markdown("""
 - **Green** = Most incidents involved hikers/climbers
 - **Purple** = Most incidents involved occupational workers (patrollers, rescuers)
 - **Gray** = No dominant traveler type
+""")
+
+st.markdown("""
+### About this App:
+This is a geospatial visualization of the avalanche accident data provided by Avalanche.org
+of recorded avalanche incidents since approximately 1953. The zones shaped in blue, red, green and orange all
+represent the modes of travel used by the victim(s) of these incidents caught in avalanches in these areas.
+The goal of this map is to determine which moe of travel, historically, is most likely to be caught in avalanches
+in the zones seen.
 """)
 
 

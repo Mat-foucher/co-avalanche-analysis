@@ -215,7 +215,7 @@ st.markdown("""
 This is a geospatial visualization of the avalanche accident data provided by Avalanche.org
 of recorded avalanche incidents since approximately 1953. The zones shaped in blue, red, green and orange all
 represent the modes of travel used by the victim(s) of these incidents caught in avalanches in these areas.
-The goal of this map is to determine which moe of travel, historically, is most likely to be caught in avalanches
+The goal of this map is to determine which mode of travel, historically, is most likely to be caught in avalanches
 in the zones seen.
 """)
 

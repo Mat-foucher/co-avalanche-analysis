@@ -10,6 +10,8 @@ from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
 import numpy as np
 
+st.set_page_config(layout="wide")
+
 file_path = "CAIC_Accident_Data_Nov_2024.xlsx"
 df = pd.read_excel(file_path)
 
@@ -61,7 +63,7 @@ traveler_mapping = {
 df["PrimaryActivity"] = df["PrimaryActivity"].map(traveler_mapping)
 
 # Check unique categories to confirm mapping worked
-print(df["PrimaryActivity"].unique())
+#print(df["PrimaryActivity"].unique())
 
 # Color Code for Activity Type:
 colordict  = {
@@ -197,7 +199,7 @@ HeatMap(heatmap_data, radius=10, blur=15, max_zoom=8).add_to(m)
 
 
 # Save the Map:
-st_folium(m)
+st_folium(m, width=1200, height=800)
 
 st.markdown("""
 ### Forecast Zone Risk Legend:
@@ -218,5 +220,5 @@ in the zones seen.
 """)
 
 
-print(df_filtered[['lat', 'lon']].dropna())  # Show all non-null lat/lon values
+#print(df_filtered[['lat', 'lon']].dropna())  # Show all non-null lat/lon values
 

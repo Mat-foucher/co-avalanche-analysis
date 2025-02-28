@@ -44,9 +44,9 @@ python avalanche_analysis.py
 Avalanche safety is critical for backcountry travelers. This project enhances risk awareness by providing data-backed insights into past avalanche events, empowering users to make informed decisions when venturing into avalanche-prone terrain.
 
 Future Improvement:  
-    •    Machine Learning Predictions 🤖: Train a model to forecast avalanche probability based on weather and terrain conditions.
-    •    Web App Deployment 🌐: Develop a Flask or Streamlit-based web interface for user-friendly interaction.
-    •    Live Data Feeds 📡: Integrate real-time avalanche and weather data from API sources.
+    •    Machine Learning Predictions 🤖: Train a model to forecast avalanche probability based on weather and terrain conditions.  
+    •    Web App Deployment 🌐: Develop a Flask or Streamlit-based web interface for user-friendly interaction.  
+    •    Live Data Feeds 📡: Integrate real-time avalanche and weather data from API sources.  
 
 **Contributing**  
 

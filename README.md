@@ -14,11 +14,11 @@ This project is a data-driven avalanche analysis tool for Colorado backcountry e
     •    Customizable Queries 🔍: Users can filter avalanches by date, region, elevation, and other factors.  
 
 **Technical Stack**  
-    •    Programming Languages: Python
-    •    Data Processing: Pandas, NumPy
-    •    Visualization: Matplotlib, Seaborn, Folium (for mapping)
-    •    Geospatial Analysis: GeoPandas, Shapely
-    •    Data Source: Colorado Avalanche Information Center (CAIC) dataset
+    •    Programming Languages: Python  
+    •    Data Processing: Pandas, NumPy  
+    •    Visualization: Matplotlib, Seaborn, Folium (for mapping)  
+    •    Geospatial Analysis: GeoPandas, Shapely  
+    •    Data Source: Colorado Avalanche Information Center (CAIC) dataset  
 
 How to Use  
 

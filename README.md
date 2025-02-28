@@ -6,7 +6,7 @@ Hosted on Streamlit: https://co-avalanche-analysis-2f2buv6uudes2uspv6hvva.stream
 
 This project is a data-driven avalanche analysis tool for Colorado backcountry enthusiasts, skiers, and mountaineers. It leverages historical avalanche incident data and geospatial visualization techniques to provide insights into avalanche risk trends, locations, and patterns.  
 
-**Features**
+**Features**  
     •    Interactive Data Visualization 📊: Displays avalanche occurrences across Colorado with dynamic maps and filtering options.  
     •    Geospatial Analysis 🗺️: Integrates GPS and elevation data to map avalanche-prone areas.  
     •    Historical Trend Insights 📅: Analyzes patterns in avalanche frequency, severity, and terrain characteristics.  

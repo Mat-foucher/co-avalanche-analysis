@@ -1,17 +1,19 @@
-**Colorado Avalanche Analysis App** 
+****Colorado Avalanche Analysis App****
 
-Overview
+Hosted on Streamlit: https://co-avalanche-analysis-2f2buv6uudes2uspv6hvva.streamlit.app/
+
+**Overview**
 
 This project is a data-driven avalanche analysis tool for Colorado backcountry enthusiasts, skiers, and mountaineers. It leverages historical avalanche incident data and geospatial visualization techniques to provide insights into avalanche risk trends, locations, and patterns.
 
-Features
+**Features**
     •    Interactive Data Visualization 📊: Displays avalanche occurrences across Colorado with dynamic maps and filtering options.
     •    Geospatial Analysis 🗺️: Integrates GPS and elevation data to map avalanche-prone areas.
     •    Historical Trend Insights 📅: Analyzes patterns in avalanche frequency, severity, and terrain characteristics.
     •    Python-Powered Backend 🐍: Utilizes Pandas, NumPy, and Matplotlib for data processing and visualization.
     •    Customizable Queries 🔍: Users can filter avalanches by date, region, elevation, and other factors.
 
-Technical Stack
+**Technical Stack**
     •    Programming Languages: Python
     •    Data Processing: Pandas, NumPy
     •    Visualization: Matplotlib, Seaborn, Folium (for mapping)
@@ -19,6 +21,7 @@ Technical Stack
     •    Data Source: Colorado Avalanche Information Center (CAIC) dataset
 
 How to Use
+
     1.    Clone this repository:
 
 git clone https://github.com/Mat-foucher/co-avalanche-analysis.git
@@ -36,7 +39,7 @@ python avalanche_analysis.py
 
     4.    Explore interactive maps and charts to identify avalanche trends.
 
-Why This Matters
+**Why This Matters**
 
 Avalanche safety is critical for backcountry travelers. This project enhances risk awareness by providing data-backed insights into past avalanche events, empowering users to make informed decisions when venturing into avalanche-prone terrain.
 
@@ -45,7 +48,7 @@ Future Improvements
     •    Web App Deployment 🌐: Develop a Flask or Streamlit-based web interface for user-friendly interaction.
     •    Live Data Feeds 📡: Integrate real-time avalanche and weather data from API sources.
 
-Contributing
+**Contributing**
 
 If you’re passionate about backcountry safety, data visualization, or geospatial analytics, feel free to fork this repo and contribute!
 

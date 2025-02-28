@@ -1,4 +1,4 @@
-##Colorado Avalanche Analysis App 
+**Colorado Avalanche Analysis App** 
 
 Overview
 

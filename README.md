@@ -1,4 +1,4 @@
-****Colorado Avalanche Analysis App****
+## Colorado Avalanche Analysis App
 
 Hosted on Streamlit: https://co-avalanche-analysis-2f2buv6uudes2uspv6hvva.streamlit.app/
 
